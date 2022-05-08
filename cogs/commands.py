@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import wavelink
 
 
 class Commands(commands.Cog):
@@ -12,6 +13,15 @@ class Commands(commands.Cog):
     @commands.command()
     async def clear(self, ctx, limit: int):
         await ctx.channel.purge(limit=limit)
+
+    @commands.command()
+    async def play(self, ctx, *, search: wavelink.YouTubeTrack):
+        if not ctx.voice_client:
+            vc: wavelink.Player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
+        else:
+            vc: wavelink.Player = ctx.voice_client
+
+        await vc.play(search)
 
 
 def setup(client):

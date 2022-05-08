@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import wavelink
 
 
 class Events(commands.Cog):
@@ -11,8 +12,23 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     # This will be the function run once the bot is ready to use
     async def on_ready(self):
+        print("I am here")
         await self.client.wait_until_ready()
+        await self.client.change_presence(status=discord.Status.dnd, activity=discord.Game('Beep Boop I am Robot'))
         print('We have logged in as {0.user}'.format(self.client))
+        self.client.loop.create_task(self.node_connect())
+
+    @commands.Cog.listener()
+    # connect to a free open node
+    async def node_connect(self):
+        print("i am here now")
+        await self.client.wait_until_ready()
+        await wavelink.NodePool.create_node(bot=self.client, host='lavalinkinc.ml', port=443, password='incognito',
+                                            https=True)
+
+    @commands.Cog.listener()
+    async def on_wavelink_node_ready(self, node: wavelink.Node):
+        print(f'Node {node.identifier} is connected.')
 
     @commands.Cog.listener()
     # on_message deals with incoming messages and commands
