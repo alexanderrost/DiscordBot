@@ -12,7 +12,6 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     # This will be the function run once the bot is ready to use
     async def on_ready(self):
-        print("I am here")
         await self.client.wait_until_ready()
         await self.client.change_presence(status=discord.Status.dnd, activity=discord.Game('Beep Boop I am Robot'))
         print('We have logged in as {0.user}'.format(self.client))
