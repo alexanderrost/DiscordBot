@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 import wavelink
+import mysql.connector
+from mysql.connector import errorcode
 
 
 class Commands(commands.Cog):
@@ -8,11 +10,23 @@ class Commands(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+
+
+    async def db_stats(self,stats):
+        # More database stuff because I might've messed up? whoopsie
+        cnx = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='discord_stats')
+        mycursor = cnx.cursor()
+        query = "UPDATE stats SET count = count + 1 WHERE NAME = %s", (str(stats))
+        mycursor.execute(query)
+        cnx.commit()
+        cnx.close()
+
     # The int determines how many messages we'd like to clear out.
     # .clear 100 will remove the previous 100 messages(99 realisticly since it counts the msg to call the command)
     @commands.command()
     async def clear(self, ctx, limit: int):
         await ctx.channel.purge(limit=limit)
+        await self.db_stats("commands_run")
 
     # Play a song with .play url
     @commands.command()
@@ -26,6 +40,7 @@ class Commands(commands.Cog):
         # Play the requested song
         print(vc.volume)
         await vc.play(search)
+        await self.db_stats("songs_played")
 
     # Use this command to pause the music
     @commands.command()
