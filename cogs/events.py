@@ -71,7 +71,7 @@ class Events(commands.Cog):
         # More database stuff because I might've messed up? whoopsie
         cnx = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='discord_stats')
         mycursor = cnx.cursor()
-        query = "UPDATE stats SET count = count + 1 WHERE name = {}".format(stats)
+        query = "UPDATE stats SET count = count + 1 WHERE name = '{}'".format(stats)
         mycursor.execute(query)
         cnx.commit()
         cnx.close()
@@ -88,7 +88,6 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     # connect to a free open node
     async def node_connect(self):
-        print("i am here now")
         await self.client.wait_until_ready()
         await wavelink.NodePool.create_node(bot=self.client, host='lavalinkinc.ml', port=443, password='incognito',
                                             https=True)
@@ -124,7 +123,6 @@ class Events(commands.Cog):
         # This is needed or else the bot gets stuck looking for messages instead of commands
         # await self.client.process_commands(message)
         await self.db_stats("messages_in_chat")
-        print("One more message sent!!!")
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
