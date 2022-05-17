@@ -11,9 +11,9 @@ class Events(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    # Databse stuff
+    # Database stuff
     try:
-        # Try to connect to the datbase
+        # Try to connect to the database
         cnx = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='discord_stats')
     # If it can't find the database, we go here and create one! how nice
     except mysql.connector.Error as err:
@@ -22,50 +22,55 @@ class Events(commands.Cog):
             print('Database does not exist, creating...')
             mycursor = cnx.cursor()
             mycursor.execute("CREATE DATABASE discord_stats")
+            # Tables and db name
+            # Here we add all the statistics we want to keep track off
+            DB_NAME = "discord_stats"
+            TABLES = {'stats': (
+                "CREATE TABLE `stats` ("
+                "  `name` char(100),"
+                "  `count` bigint(14) ,"
+                "  `id` bigint(14)  NOT NULL AUTO_INCREMENT ,"
+                "  PRIMARY KEY (`id`)"
+                ") ENGINE=InnoDB")}
+
+            # Not sure if we need another connection here, ive done so in the past?? nvm its because of the database arg
+            # How have I not figured that out until now. Welp
+            cnx = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='discord_stats')
+            # Cursor is a database handler, it helps us execute all commands
+            cursor = cnx.cursor(buffered=True)
+            cursor.execute("USE {}".format(DB_NAME))
+            # Use a for-loop to create the tables using the information in TABLES[]
+            for table_name in TABLES:
+                table_description = TABLES[table_name]
+                try:
+                    print("Creating table {}: ".format(table_name), end='')
+                    cursor.execute(table_description)
+                except mysql.connector.Error as err:
+                    if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
+                        print("Table already exists")
+                    else:
+                        print(err.msg)
+                else:
+                    print("OK")
+
+            cnx = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='discord_stats')
+            query1 = "insert into `stats`(`name`,`count`) values (%s, %s) "
+            val = ("messages_in_chat", 0)
+            query2 = "insert into `stats`(`name`,`count`) values (%s, %s) "
+            val2 = ("commands_run", 0)
+            query3 = "insert into `stats`(`name`,`count`) values (%s, %s) "
+            val3 = ("songs_played", 0)
+
+            cnx.cursor().execute(query1, val)
+            cnx.cursor().execute(query2, val2)
+            cnx.cursor().execute(query3, val3)
+
+            cnx.commit()
+
         else:
             print(err)
 
-            # Tables and db name
-            # Here we add all the statistics we want to keep track off
-    DB_NAME = "discord_stats"
-    TABLES = {'stats': (
-        "CREATE TABLE `stats` ("
-        "  `name` char(100) ,"
-        "  `count` bigint(14) ,"
-        "  PRIMARY KEY (`name`)"
-        ") ENGINE=InnoDB")}
 
-    # Not sure if we need another connection here, ive done so in the past??
-    cnx = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='discord_stats')
-    # Cursor is a database handler, it helps us execute all commands
-    cursor = cnx.cursor(buffered=True)
-    cursor.execute("USE {}".format(DB_NAME))
-    # Use a for-loop to create the tables using the information in TABLES[]
-    for table_name in TABLES:
-        table_description = TABLES[table_name]
-        try:
-            print("Creating table {}: ".format(table_name), end='')
-            cursor.execute(table_description)
-        except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
-                print("Table already exists")
-            else:
-                print(err.msg)
-        else:
-            print("OK")
-
-    query1 = "insert into `stats`(`name`,`count`) values (%s, %s) "
-    val = ("messages_in_chat", 0)
-    query2 = "insert into `stats`(`name`,`count`) values (%s, %s) "
-    val2 = ("commands_run", 0)
-    query3 = "insert into `stats`(`name`,`count`) values (%s, %s) "
-    val3 = ("songs_played", 0)
-
-    cnx.cursor().execute(query1, val)
-    cnx.cursor().execute(query2, val2)
-    cnx.cursor().execute(query3, val3)
-
-    cnx.commit()
 
     async def db_stats(self, stats):
         # More database stuff because I might've messed up? whoopsie
