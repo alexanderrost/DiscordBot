@@ -52,7 +52,7 @@ class Events(commands.Cog):
                         print(err.msg)
                 else:
                     print("OK")
-
+            # First time thing, set the values to 0
             cnx = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='discord_stats')
             query1 = "insert into `stats`(`name`,`count`) values (%s, %s) "
             val = ("messages_in_chat", 0)
@@ -74,6 +74,7 @@ class Events(commands.Cog):
         # More database stuff because I might've messed up? whoopsie
         cnx = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='discord_stats')
         mycursor = cnx.cursor()
+        # The query that we send to the databse to update the statistics
         query = "UPDATE stats SET count = count + 1 WHERE name = '{}'".format(stats)
         mycursor.execute(query)
         cnx.commit()
@@ -128,6 +129,7 @@ class Events(commands.Cog):
         # await self.client.process_commands(message)
         await self.db_stats("messages_in_chat")
 
+    # This code is run once a new member joins the server
     @commands.Cog.listener()
     async def on_member_join(self, member):
         channel = member.guild.system_channel
@@ -135,6 +137,7 @@ class Events(commands.Cog):
         embed.set_author(name=member, icon_url=member.avatar_url)
         await channel.send(embed=embed)
 
+    # This code is run once a member leaves the server
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         channel = member.guild.system.channel
