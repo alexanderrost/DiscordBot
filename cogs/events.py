@@ -70,8 +70,6 @@ class Events(commands.Cog):
         else:
             print(err)
 
-
-
     async def db_stats(self, stats):
         # More database stuff because I might've messed up? whoopsie
         cnx = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='discord_stats')
@@ -97,6 +95,7 @@ class Events(commands.Cog):
         await wavelink.NodePool.create_node(bot=self.client, host='lavalinkinc.ml', port=443, password='incognito',
                                             https=True)
 
+    # Checks when the bot is connected to the public node
     @commands.Cog.listener()
     async def on_wavelink_node_ready(self, node: wavelink.Node):
         print(f'Node {node.identifier} is connected.')
